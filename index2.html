@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <title>Gartenbau</title>
+    <style>
+        /* ── DESIGN TOKENS ─────────────────────────────── */
+        :root {
+            --green-deep:   #1a3a1f;
+            --green-mid:    #2d5a35;
+            --green-accent: #4c8c3f;
+            --green-light:  #7dba6f;
+            --cream:        #f5f0e8;
+            --cream-dark:   #ede5d4;
+            --bark:         #5c3d1e;
+            --text-dark:    #1a1a1a;
+            --text-muted:   #6b7268;
+            --white:        #ffffff;
+            --shadow-soft:  0 4px 30px rgba(26,58,31,0.10);
+            --shadow-card:  0 8px 40px rgba(26,58,31,0.13);
+            --radius-lg:    20px;
+            --radius-sm:    10px;
+            --transition:   0.35s cubic-bezier(.4,0,.2,1);
+        }
+
+        /* ── RESET & BASE ──────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* ── NAV / HEADER ──────────────────────────────── */
+        .site-nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            height: 80px;
+            background: rgba(245,240,232,0.88);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(77,140,63,0.15);
+            transition: background var(--transition);
+        }
+        .Logo {
+            width: 62px;
+            height: 62px;
+            object-fit: contain;
+            border-radius: 50%;
+            transition: transform var(--transition);
+        }
+        .Logo:hover { transform: scale(1.07); }
+        .container2 {
+            display: flex;
+            align-items: center;
+            gap: 36px;
+        }
+        .link {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+            font-size: 0.9rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--green-deep);
+            text-decoration: none;
+            position: relative;
+            padding-bottom: 3px;
+            transition: color var(--transition);
+        }
+        .link::after {
+            content: '';
+            position: absolute;
+            left: 0; bottom: 0;
+            width: 0; height: 2px;
+            background: var(--green-accent);
+            transition: width var(--transition);
+        }
+        .link:hover { color: var(--green-accent); }
+        .link:hover::after { width: 100%; }
+
+        /* ── HERO ──────────────────────────────────────── */
+        .hero-section {
+            position: relative;
+            height: 100vh;
+            min-height: 560px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .Titelbild {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.42) saturate(0.8);
+            transform: scale(1.04);
+            transition: transform 8s ease;
+        }
+        .hero-section:hover .Titelbild { transform: scale(1.0); }
+        .Titelbild2 {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 0 20px;
+        }
+        .hero-eyebrow {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 500;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--green-light);
+            opacity: 0;
+            animation: fadeUp 0.7s 0.3s forwards;
+        }
+        .Gartenbau {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 300;
+            font-size: clamp(70px, 12vw, 160px);
+            line-height: 0.9;
+            color: var(--white);
+            letter-spacing: -0.02em;
+            opacity: 0;
+            animation: fadeUp 0.9s 0.5s forwards;
+        }
+        .hero-sub {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 300;
+            color: rgba(255,255,255,0.72);
+            max-width: 480px;
+            line-height: 1.6;
+            opacity: 0;
+            animation: fadeUp 0.9s 0.75s forwards;
+        }
+        .hero-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            padding: 14px 34px;
+            background: var(--green-accent);
+            color: var(--white);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+            opacity: 0;
+            animation: fadeUp 0.9s 1s forwards;
+        }
+        .hero-cta:hover {
+            background: var(--green-light);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(77,140,63,0.35);
+        }
+        .hero-scroll-hint {
+            position: absolute;
+            bottom: 36px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            animation: fadeIn 1s 1.5s forwards;
+        }
+        .hero-scroll-hint span {
+            font-size: 0.7rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.4);
+        }
+        .scroll-line {
+            width: 1px;
+            height: 48px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent);
+            animation: scrollPulse 2s 2s infinite;
+        }
+
+        /* ── WHY US SECTION ────────────────────────────── */
+        .why-section {
+            padding: 110px 60px 80px;
+            background: var(--cream);
+            position: relative;
+        }
+        .section-label {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--green-accent);
+            margin-bottom: 16px;
+        }
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 400;
+            font-size: clamp(36px, 5vw, 58px);
+            color: var(--green-deep);
+            line-height: 1.1;
+            margin-bottom: 60px;
+        }
+        .why-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+        }
+        .why-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 44px 36px;
+            border: 1px solid rgba(77,140,63,0.12);
+            box-shadow: var(--shadow-soft);
+            transition: transform var(--transition), box-shadow var(--transition);
+        }
+        .why-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-card);
+        }
+        .why-icon {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+        }
+        .why-card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            font-size: 1.35rem;
+            color: var(--green-deep);
+            margin-bottom: 12px;
+        }
+        .why-card p {
+            font-size: 0.93rem;
+            color: var(--text-muted);
+            line-height: 1.65;
+            font-weight: 300;
+        }
+
+        /* ── PROMO STRIP (was .Bilder section) ─────────── */
+        .promo-strip {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+            background: var(--green-deep);
+            overflow: hidden;
+        }
+        .promo-item {
+            position: relative;
+            overflow: hidden;
+            height: 220px;
+        }
+        .promo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.55) saturate(0.7);
+            transition: transform 0.6s ease, filter 0.6s ease;
+        }
+        .promo-item:hover img {
+            transform: scale(1.06);
+            filter: brightness(0.7) saturate(0.9);
+        }
+        .promo-label {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 400;
+            font-size: 1.6rem;
+            color: var(--white);
+            letter-spacing: 0.04em;
+            pointer-events: none;
+        }
+
+        /* ── PRODUCT CARDS (Big_Container) ─────────────── */
+        .Big_Container {
+            padding: 80px 60px 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 48px;
+            background: var(--cream);
+        }
+        .Small_Container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+            min-height: 420px;
+            transition: box-shadow var(--transition), transform var(--transition);
+        }
+        .Small_Container:hover {
+            box-shadow: 0 16px 60px rgba(26,58,31,0.18);
+            transform: translateY(-3px);
+        }
+        /* Odd containers: image left, text right */
+        .Small_Container:nth-child(odd) { flex-direction: row; }
+        /* Even containers: text left, image right — handled with order below */
+
+        .Picture1, .Picture2 {
+            width: 100%;
+            height: 100%;
+            min-height: 380px;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.6s ease;
+        }
+        .Small_Container:hover .Picture1,
+        .Small_Container:hover .Picture2 {
+            transform: scale(1.04);
+        }
+
+        /* Product text panels */
+        .Produktbeschreibung,
+        .Produktbeschreibung2 {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 56px 52px;
+            gap: 18px;
+            position: static;
+            width: 100%;
+            height: 100%;
+        }
+        .Produktbeschreibung2 { order: -1; } /* text on left for even items */
+
+        .Übertitel {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 400;
+            font-size: clamp(26px, 3vw, 40px);
+            color: var(--green-deep);
+            line-height: 1.1;
+        }
+        .Produktbeschreibung3 {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            font-weight: 300;
+            max-width: 380px;
+        }
+        .button1 {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            padding: 13px 30px;
+            background: var(--green-accent);
+            color: var(--white);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.87rem;
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+        }
+        .button1::after { content: ' →'; }
+        .button1:hover {
+            background: var(--green-deep);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(26,58,31,0.25);
+        }
+
+        /* ── SHOP SIDEBAR (Angebotfenster) ─────────────── */
+        .Angebot_Fenster {
+            display: none;
+            position: fixed;
+            right: 0; top: 0;
+            width: 280px;
+            height: 100vh;
+            background: var(--white);
+            border-left: 1px solid rgba(77,140,63,0.15);
+            box-shadow: -8px 0 40px rgba(26,58,31,0.12);
+            z-index: 200;
+            overflow-y: auto;
+        }
+        .buttons {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            padding: 60px 0 24px;
+        }
+        .Button_look {
+            width: 100%;
+            padding: 15px 28px;
+            border: none;
+            border-bottom: 1px solid rgba(77,140,63,0.08);
+            background: transparent;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 400;
+            color: var(--green-deep);
+            text-align: left;
+            cursor: pointer;
+            transition: background var(--transition), color var(--transition), padding-left var(--transition);
+        }
+        .Button_look:hover {
+            background: var(--cream);
+            color: var(--green-accent);
+            padding-left: 38px;
+        }
+        .X {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(77,140,63,0.2);
+            background: var(--cream);
+            color: var(--green-deep);
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background var(--transition), border-color var(--transition);
+            z-index: 201;
+        }
+        .X:hover {
+            background: var(--green-accent);
+            color: var(--white);
+            border-color: var(--green-accent);
+        }
+
+        /* ── ORDER FORM (Eingabefenster) ────────────────── */
+        .Eingabefenster {
+            display: none;
+            width: 360px;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(77,140,63,0.15);
+            box-shadow: 0 24px 80px rgba(26,58,31,0.18);
+            z-index: 1001;
+            overflow: hidden;
+        }
+        .Eingabefeld_Position {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0;
+        }
+        .form-header {
+            background: var(--green-deep);
+            padding: 28px 32px 22px;
+        }
+        .Title3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: var(--white);
+        }
+        .form-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            padding: 0 32px 32px;
+            padding-top: 24px;
+        }
+        .Eingabefeld {
+            width: 100%;
+            padding: 13px 0;
+            border: none;
+            border-bottom: 1.5px solid rgba(77,140,63,0.18);
+            background: transparent;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            outline: none;
+            transition: border-color var(--transition);
+            margin-bottom: 4px;
+        }
+        .Eingabefeld::placeholder { color: #aaa; font-weight: 300; }
+        .Eingabefeld:focus { border-color: var(--green-accent); }
+        #button3 {
+            margin-top: 20px;
+            width: 100%;
+            padding: 14px;
+            background: var(--green-accent);
+            color: var(--white);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: background var(--transition);
+        }
+        #button3:hover { background: var(--green-deep); }
+
+        /* ── OVERLAYS ───────────────────────────────────── */
+        .overlay, .overlay2 {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(26,58,31,0.45);
+            backdrop-filter: blur(3px);
+            z-index: 1000;
+        }
+
+        /* ── FOOTER STRIP ───────────────────────────────── */
+        .footer-strip {
+            background: var(--green-deep);
+            color: rgba(255,255,255,0.5);
+            text-align: center;
+            padding: 28px;
+            font-size: 0.78rem;
+            letter-spacing: 0.08em;
+        }
+
+        /* ── KEYFRAMES ──────────────────────────────────── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        @keyframes scrollPulse {
+            0%, 100% { transform: scaleY(1); opacity: 0.5; }
+            50%       { transform: scaleY(0.5); opacity: 1; }
+        }
+
+        /* ── RESPONSIVE ─────────────────────────────────── */
+        @media (max-width: 900px) {
+            .why-grid { grid-template-columns: 1fr 1fr; }
+            .Big_Container { padding: 50px 28px 80px; gap: 36px; }
+            .Small_Container { grid-template-columns: 1fr; min-height: auto; }
+            .Picture1, .Picture2 { min-height: 240px; height: 240px; }
+            .Produktbeschreibung, .Produktbeschreibung2 {
+                padding: 36px 30px;
+                order: 0 !important;
+            }
+            .promo-strip { grid-template-columns: 1fr; }
+            .promo-item { height: 140px; }
+        }
+        @media (max-width: 768px) {
+            .site-nav { padding: 0 20px; }
+            .container2 { gap: 20px; }
+            .link { display: none; }
+            .why-section { padding: 70px 28px 50px; }
+            .why-grid { grid-template-columns: 1fr; gap: 20px; }
+            .Gartenbau { font-size: clamp(52px, 16vw, 100px); }
+            .Eingabefenster { width: 90vw; }
+        }
+        @media (max-width: 420px) {
+            .Eingabefenster { width: 94vw; }
+            .Übertitel { font-size: 1.3rem; }
+            .Produktbeschreibung3 { display: none; }
+            .button1 { font-size: 0.78rem; padding: 10px 20px; }
+            .Big_Container { padding: 30px 14px 60px; gap: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── NAV ─────────────────────────────────────── -->
+    <nav class="site-nav">
+        <img src="Bilder/Gartenbau.Logo.png" class="Logo" alt="Gartenbau Logo">
+        <div class="container2">
+            <a href="#" class="link" onclick="ObenWindow()">Shop</a>
+            <a href="Impressum.html" class="link">Impressum</a>
+            <a href="Datenschutz.html" class="link">Datenschutz</a>
+        </div>
+    </nav>
+
+    <!-- ── OVERLAYS ────────────────────────────────── -->
+    <div class="overlay" id="overlay"></div>
+    <div class="overlay2" id="overlay2"></div>
+
+    <!-- ── SHOP SIDEBAR ────────────────────────────── -->
+    <div id="Angebotfenster" class="Angebot_Fenster">
+        <button class="X" onclick="CloseWindow()">✕</button>
+        <div class="buttons">
+            <button id="1"  class="Button_look">🌿 Rasenmähen</button>
+            <button id="2"  class="Button_look">🌱 Vertikutieren</button>
+            <button id="3"  class="Button_look">🍃 Mulchmähen</button>
+            <button id="4"  class="Button_look">🌾 Wieder Ansähen</button>
+            <button id="5"  class="Button_look">💧 Düngern</button>
+            <button id="6"  class="Button_look">🏡 Feld Erstellung</button>
+            <button id="7"  class="Button_look">🌳 Gartenpflege Programm</button>
+            <button id="8"  class="Button_look">❄️ Schnee schaufeln</button>
+            <button id="9"  class="Button_look">🌿 Unkraut Entfernung</button>
+            <button id="10" class="Button_look">✂️ Frei schneiden</button>
+            <button id="11" class="Button_look">🏠 Im Haushalt</button>
+            <button id="12" class="Button_look">📋 Gartenbesichtigung</button>
+        </div>
+    </div>
+
+    <!-- ── ORDER FORM ───────────────────────────────── -->
+    <div id="Eingabefenster" class="Eingabefenster">
+        <div class="Eingabefeld_Position">
+            <div class="form-header">
+                <h1 id="Title3" class="Title3"></h1>
+            </div>
+            <div class="form-fields">
+                <input id="E1" class="Eingabefeld" type="text" placeholder="Vorname">
+                <input id="E2" class="Eingabefeld" type="text" placeholder="Nachname">
+                <input id="E3" class="Eingabefeld" type="email" placeholder="E-Mail Adresse">
+                <input id="E4" class="Eingabefeld" type="text" placeholder="Straße & Hausnummer">
+                <input id="E5" class="Eingabefeld" type="text" placeholder="Ort">
+                <input id="E6" class="Eingabefeld" type="text" placeholder="Bezirk">
+                <button id="button3" onclick="newTab()">Anfrage absenden</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── HERO ─────────────────────────────────────── -->
+    <section class="hero-section">
+        <img src="Bilder/Titelbild.png" class="Titelbild" alt="Gartenbau">
+        <div class="Titelbild2">
+            <span class="hero-eyebrow">Professioneller Gartenbau</span>
+            <h1 class="Gartenbau">Gartenbau</h1>
+            <p class="hero-sub">Wir pflegen Ihren Garten mit Leidenschaft und Fachkenntnis — zuverlässig, nachhaltig, persönlich.</p>
+            <a href="#" class="hero-cta" onclick="ObenWindow()">Unsere Leistungen</a>
+        </div>
+        <div class="hero-scroll-hint">
+            <div class="scroll-line"></div>
+            <span>Scrollen</span>
+        </div>
+    </section>
+
+    <!-- ── WHY US ────────────────────────────────────── -->
+    <section class="why-section">
+        <p class="section-label">Warum wir</p>
+        <h2 class="section-title">Auf uns können<br>Sie zählen</h2>
+        <div class="why-grid">
+            <div class="why-card">
+                <div class="why-icon">😊</div>
+                <h3>Glückliche Kunden</h3>
+                <p>Bis jetzt haben wir ausschließlich zufriedene Kunden — das ist unser wichtigster Antrieb und unser Versprechen an Sie.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon">🤝</div>
+                <h3>Lokale Arbeitskräfte</h3>
+                <p>Wir setzen auf regionale Fachleute, die Ihre Umgebung kennen und sich für die Gemeinschaft einsetzen.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon">💰</div>
+                <h3>Faire Preise</h3>
+                <p>Hervorragende Qualität muss nicht teuer sein. Wir bieten ausgezeichnete Leistungen zu einem fairen Preis-Leistungs-Verhältnis.</p>
+            </div>
+        </div>
+    </section>
+
+    
+
+    <!-- ── PRODUCTS (Big_Container) ──────────────────── -->
+    <div class="Big_Container">
+
+        <div class="Small_Container" id="Small_Container1">
+            <img src="Bilder/rasenmähen_Bild.jpg" class="Picture1" alt="Rasenmähen">
+            <div class="Produktbeschreibung">
+                <h1 class="Übertitel">Rasenmähen</h1>
+                <p class="Produktbeschreibung3">Ein gepflegter Rasen macht den Unterschied! Wir sorgen für einen sauberen, gleichmäßig geschnittenen Rasen, zuverlässig und professionell. Egal ob Privatgarten oder Firmengelände, wir übernehmen das Rasenmähen für Sie.</p>
+                <button onclick="Einkaufen(event)" class="button1">Jetzt buchen</button>
+            </div>
+        </div>
+
+        <div class="Small_Container" id="Small_Container2">
+            <div class="Produktbeschreibung2">
+                <h1 class="Übertitel">Vertikutieren - Lüften</h1>
+                <p class="Produktbeschreibung3">Ihr Rasen braucht Luft zum Atmen! Durch das Vertikutieren entfernen wir Moos, sodass Nährstoffe, Wasser und Sauerstoff besser in den Boden gelangen. Das Ergebnis: ein dichter, gesunder und kräftiger Rasen!</p>
+                <button onclick="Einkaufen(event)" class="button1">Jetzt buchen</button>
+            </div>
+            <img src="Bilder/Vertikutieren.jpg" class="Picture2" alt="Vertikutieren">
+        </div>
+
+        <div class="Small_Container" id="Small_Container3">
+            <img src="Bilder/Mulchmähen.jpg" class="Picture1" alt="Mulchmähen">
+            <div class="Produktbeschreibung">
+                <h1 class="Übertitel">Mulchmähen</h1>
+                <p class="Produktbeschreibung3">Beim Mulchmähen wird das geschnittene Gras fein zerkleinert und als natürlicher Dünger auf dem Rasen verteilt. So bleibt die Feuchtigkeit erhalten, Unkraut wird reduziert und Ihr Rasen wächst dichter und gesünder.</p>
+                <button onclick="Einkaufen(event)" class="button1">Jetzt buchen</button>
+            </div>
+        </div>
+
+        <div class="Small_Container" id="Small_Container4">
+            <div class="Produktbeschreibung2">
+                <h1 class="Übertitel">Wieder Ansaat</h1>
+                <p class="Produktbeschreibung3">Kahle Stellen im Rasen? Durch Nachsaat schließen wir Lücken und sorgen für einen gleichmäßigen, dichten Rasen. Mit hochwertigem Saatgut und optimaler Pflege wächst Ihr Rasen schnell wieder in Bestform.</p>
+                <button onclick="Einkaufen(event)" class="button1">Jetzt buchen</button>
+            </div>
+            <img src="Bilder/Wieder_Ansähen.jpg" class="Picture2" alt="Wieder Ansähen">
+        </div>
+
+        <div class="Small_Container" id="Small_Container5">
+            <img src="Bilder/Düngern.jpeg" class="Picture1" alt="Düngern">
+            <div class="Produktbeschreibung">
+                <h1 class="Übertitel">Düngen</h1>
+                <p class="Produktbeschreibung3">Ein gesunder Rasen braucht die richtigen Nährstoffe! Mit einer gezielten Düngung stärken wir das Wachstum, verbessern die Widerstandskraft und fördern ein sattes Grün. Wir verwenden hochwertige Dünger.</p>
+                <button onclick="Einkaufen(event)" class="button1">Jetzt buchen</button>
+            </div>
+        </div>
+
+        <div class="Small_Container" id="Small_Container6">
+            <div class="Produktbeschreibung2">
+                <h1 class="Übertitel">Feld Erstellung</h1>
+                <p class="Produktbeschreibung3">Ob Garten, Sportplatz oder Wiese — wir erstellen Ihre Rasenfläche von Grund auf. Vom Bodenvorbereiten bis zur Aussaat sorgen wir für eine perfekte Basis für Ihren neuen Rasen.</p>
+                <button onclick="Einkaufen(event)" class="button1">Jetzt buchen</button>
+            </div>
+            <img src="Bilder/Feld_Erstellung.jpg" class="Picture2" alt="Feld Erstellung">
+        </div>
+
+        <div class="Small_Container" id="Small_Container7">
+            <img src="Bilder/Gartenpflege_Programm.jpg" class="Picture1" alt="Gartenpflege Programm">
+            <div class="Produktbeschreibung">
+                <h1 class="Übertitel">Gartenpflege Programm</h1>
+                <p class="Produktbeschreibung3">Erst im Frühjahr verfügbar — freuen Sie sich auf unser umfassendes Gartenpflege-Paket für die neue Saison.</p>
+                <button onclick="Einkaufen(event)" class="button1">Jetzt buchen</button>
+            </div>
+        </div>
+
+        <div class="Small_Container" id="Small_Container8">
+            <div class="Produktbeschreibung2">
+                <h1 class="Übertitel">Laub sammeln</h1>
+                <p class="Produktbeschreibung3">Ist ihr Garten mit Laub bedeckt? Lassen sie uns ihren Garten freiräumen! Mit dem Laubbläser und von Hand legen wir euer Garten biltzschnell frei.</p>
+                <button onclick="Einkaufen(event)" class="button1">Jetzt buchen</button>
+            </div>
+            <img src="Bilder/Laubsammeln.png" class="Picture2" alt="Schneeschaufeln">
+        </div>
+
+        <div class="Small_Container" id="Small_Container9">
+            <img src="Bilder/Unkraut_Entfernung.jpg" class="Picture1" alt="Unkrautentfernung">
+            <div class="Produktbeschreibung">
+                <h1 class="Übertitel">Unkrautentfernung</h1>
+                <p class="Produktbeschreibung3">Moos, Klee und andere Unkräuter rauben Ihrem Rasen Nährstoffe und Wasser. Wir entfernen Unkraut nachhaltig, damit Ihr Rasen wieder kräftig und dicht wachsen kann.</p>
+                <button onclick="Einkaufen(event)" class="button1">Jetzt buchen</button>
+            </div>
+        </div>
+
+        <div class="Small_Container" id="Small_Container10">
+            <div class="Produktbeschreibung2">
+                <h1 class="Übertitel">Frei schneiden (Trimmern)</h1>
+                <p class="Produktbeschreibung3">Mit dem Trimmer sorgen wir für saubere Rasenkanten und erreichen auch schwierige Bereiche wie Zäune oder Mauern. Ihr Rasen wird gepflegt aussehen, bis ins kleinste Detail.</p>
+                <button onclick="Einkaufen(event)" class="button1">Jetzt buchen</button>
+            </div>
+            <img src="Bilder/Trimmern.jpg" class="Picture2" alt="Trimmern">
+        </div>
+
+        <div class="Small_Container" id="Small_Container11">
+            <img src="Bilder/kaercher-hochdruckreiniger-k-4-comfort-premium-1-stk-717021-de.jpg" class="Picture1" alt="Im Haushalt">
+            <div class="Produktbeschreibung">
+                <h1 class="Übertitel">Hockdruckreinigung</h1>
+                <p class="Produktbeschreibung3">Sind bei ihnen Wände Terassen und Balköne von Schutz besetzt? Lassen sie uns dabei helfen die Verschmutzung mit unserem Kercher zu beseitigen.</p>
+                <button onclick="Einkaufen(event)" class="button1">Jetzt buchen</button>
+            </div>
+        </div>
+
+        <div class="Small_Container" id="Small_Container12">
+            <div class="Produktbeschreibung2">
+                <h1 class="Übertitel">Gartenbesichtigung mit Offerte</h1>
+                <p class="Produktbeschreibung3">Jeder Garten ist einzigartig. Deshalb bieten wir eine Gartenbesichtigung an, um die Kosten genau auf Ihre Bedürfnisse abzustimmen. Vor Ort analysieren wir den Aufwand und beraten Sie zu den besten Lösungen.</p>
+                <button onclick="Einkaufen(event)" class="button1">Jetzt buchen</button>
+            </div>
+            <img src="Bilder/Gartenbesichtigung.jpg" class="Picture2" alt="Gartenbesichtigung">
+        </div>
+
+    </div>
+
+    <!-- ── FOOTER ────────────────────────────────────── -->
+    <footer class="footer-strip">
+        © 2025 Gartenbau · Alle Rechte vorbehalten
+    </footer>
+
+    <!-- ── SCRIPTS ───────────────────────────────────── -->
+    <script src="Js/script.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-analytics.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD-M3r79W_li6gZZ59V_fsygK5i3_yv_I8",
+            authDomain: "gartenbau-49d72.firebaseapp.com",
+            projectId: "gartenbau-49d72",
+            storageBucket: "gartenbau-49d72.appspot.com",
+            messagingSenderId: "367596687598",
+            appId: "1:367596687598:web:67f574b71c037414a723ff",
+            measurementId: "G-S64PJ3WZLX"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getDatabase(app, "https://gartenbau-49d72-default-rtdb.europe-west1.firebasedatabase.app");
+
+        const E1 = document.getElementById("E1");
+        const E2 = document.getElementById("E2");
+        const E3 = document.getElementById("E3");
+        const E4 = document.getElementById("E4");
+        const E5 = document.getElementById("E5");
+        const E6 = document.getElementById("E6");
+        const button3 = document.getElementById("button3");
+
+        function addData() {
+            const userId = E1.value.trim();
+            if (!userId) { alert("Bitte einen Namen eingeben!"); return; }
+            set(ref(db, 'users/' + userId), {
+                Name: E1.value, Nachname: E2.value, Email: E3.value,
+                Adresse: E4.value, Ort: E5.value, Bezirk: E6.value
+            }).then(() => {
+                alert("Daten erfolgreich gespeichert!");
+                [E1,E2,E3,E4,E5,E6].forEach(e => e.value = "");
+            }).catch(error => alert("Fehler beim Speichern: " + error.message));
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            button3.addEventListener("click", addData);
+        });
+    </script>
+</body>
+</html>
