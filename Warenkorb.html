@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <title>Warenkorb</title>
+</head>
+<body>
+    <style>
+        body {
+            font-family: "Open Sans", sans-serif;
+        }
+        .Title {
+            position: absolute;
+            left: 50px;
+            font-size: 50px;
+        }
+        .Final {
+            left: 50px;
+            position: absolute;
+            top: 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 50%;
+            font-size: 20px;
+        }
+        .Höfe {
+            color: brown;
+        }
+    </style>
+    <h1 id="Warenkorb_Title" class="Title"></h1>
+    <div class="Final">
+        <h3>Wir kommen so schnell wie es nur geht</h3>
+        <h3>Pro Stunde verlangen wir 15Fr. Bevor wir bei ihrem Garten erscheinen künden wir es an. Sie können um diesen Zeitpunkt immer noch absagen.</h3>
+        <h3 class="Höfe">Falls sie nicht im Bezirk Höfe wohnen, können wir den Autrag nicht erfüllen!</h3>
+    </div>
+</body>
+</html>
+<script>
+    const savedValue = localStorage.getItem("sharedValue");
+    let titleElement = document.getElementById("Warenkorb_Title")
+    titleElement.innerHTML = savedValue;
+</script>
