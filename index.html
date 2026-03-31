@@ -583,6 +583,138 @@
             .button1 { font-size: 0.78rem; padding: 10px 20px; }
             .Big_Container { padding: 30px 14px 60px; gap: 24px; }
         }
+
+        /* ── PREISE BUTTON ──────────────────────────────── */
+        .preise-section {
+            display: flex;
+            justify-content: center;
+            padding: 0 0 80px;
+            background: var(--cream);
+        }
+        .btn-preise {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 48px;
+            background: var(--green-deep);
+            color: var(--white);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px 24px rgba(26,58,31,0.18);
+            transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+        }
+        .btn-preise:hover {
+            background: var(--green-accent);
+            transform: translateY(-3px);
+            box-shadow: 0 14px 36px rgba(26,58,31,0.25);
+        }
+
+        /* ── PREIS MODAL ────────────────────────────────── */
+        .preis-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15,35,18,0.55);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .preis-overlay.active { display: flex; }
+        .preis-modal {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            width: min(580px, 94vw);
+            max-height: 88vh;
+            overflow-y: auto;
+            box-shadow: 0 32px 100px rgba(26,58,31,0.28);
+            animation: modalIn 0.3s cubic-bezier(.4,0,.2,1);
+        }
+        @keyframes modalIn {
+            from { opacity:0; transform: translateY(24px) scale(0.97); }
+            to   { opacity:1; transform: translateY(0)    scale(1);    }
+        }
+        .preis-header {
+            background: var(--green-deep);
+            padding: 30px 36px 24px;
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .preis-header h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 400;
+            font-size: 2rem;
+            color: var(--white);
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        .preis-header p { font-size: 0.8rem; color: rgba(255,255,255,0.5); letter-spacing: 0.05em; }
+        .preis-close {
+            flex-shrink: 0;
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255,255,255,0.22);
+            background: transparent;
+            color: var(--white);
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background var(--transition);
+        }
+        .preis-close:hover { background: rgba(255,255,255,0.15); }
+        .preis-body { padding: 28px 36px 36px; display: flex; flex-direction: column; gap: 0; }
+        .preis-stunde {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--cream);
+            border-left: 4px solid var(--green-accent);
+            border-radius: var(--radius-sm);
+            padding: 18px 22px;
+            margin-bottom: 20px;
+        }
+        .preis-stunde-label {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.15rem; font-weight: 600; color: var(--green-deep);
+        }
+        .preis-stunde-val {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.7rem; font-weight: 600; color: var(--green-accent);
+        }
+        .preis-divider {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.7rem; font-weight: 500; letter-spacing: 0.2em;
+            text-transform: uppercase; color: var(--text-muted);
+            padding: 18px 0 8px;
+            border-top: 1px solid rgba(77,140,63,0.12);
+        }
+        .preis-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(77,140,63,0.08);
+        }
+        .preis-row:last-of-type { border-bottom: none; }
+        .preis-name { display: flex; align-items: center; gap: 9px; font-size: 0.92rem; color: var(--text-dark); }
+        .preis-badge {
+            font-size: 0.82rem; font-weight: 500; white-space: nowrap;
+            padding: 4px 13px; border-radius: 20px;
+        }
+        .preis-badge.green { color: var(--green-accent); background: rgba(77,140,63,0.1); }
+        .preis-badge.free  { color: #2a7a3b; background: rgba(77,140,63,0.18); font-weight: 600; }
+        .preis-footnote {
+            margin-top: 20px; padding: 14px 18px;
+            background: var(--cream); border-radius: var(--radius-sm);
+            font-size: 0.8rem; color: var(--text-muted); line-height: 1.65; text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -677,6 +809,95 @@
     </section>
 
     
+
+
+    <!-- ── PREISE BUTTON ────────────────────────────── -->
+    <div class="preise-section">
+        <button class="btn-preise" onclick="document.getElementById('preisModal').classList.add('active')">
+            💶 Preise ansehen
+        </button>
+    </div>
+
+    <!-- ── PREIS MODAL ──────────────────────────────── -->
+    <div id="preisModal" class="preis-overlay" onclick="if(event.target===this)this.classList.remove('active')">
+        <div class="preis-modal">
+            <div class="preis-header">
+                <div>
+                    <h2>Unsere Preise</h2>
+                    <p>Transparent &amp; fair — alle Preise in CHF</p>
+                </div>
+                <button class="preis-close" onclick="document.getElementById('preisModal').classList.remove('active')">✕</button>
+            </div>
+            <div class="preis-body">
+
+                <div class="preis-stunde">
+                    <span class="preis-stunde-label">⏱ Stundenlohn</span>
+                    <span class="preis-stunde-val">15 Fr. / Std.</span>
+                </div>
+
+                <div class="preis-divider">Geräte &amp; Material — wird bei Bedarf dazugerechnet</div>
+
+                <div class="preis-row">
+                    <div class="preis-name"><span>🌿</span> Rasenmäher</div>
+                    <span class="preis-badge green">9 Fr.</span>
+                </div>
+                <div class="preis-row">
+                    <div class="preis-name"><span>⚡</span> Elektrorasenmäher</div>
+                    <span class="preis-badge green">8 Fr.</span>
+                </div>
+                <div class="preis-row">
+                    <div class="preis-name"><span>💧</span> Dünger</div>
+                    <span class="preis-badge green">6 Fr. / kg</span>
+                </div>
+                <div class="preis-row">
+                    <div class="preis-name"><span>🪣</span> Streuwagen</div>
+                    <span class="preis-badge green">3 Fr.</span>
+                </div>
+                <div class="preis-row">
+                    <div class="preis-name"><span>🌱</span> Vertikutierer / Lüfter</div>
+                    <span class="preis-badge green">8 Fr.</span>
+                </div>
+                <div class="preis-row">
+                    <div class="preis-name"><span>🌾</span> Wieder Ansaat (Saatgut)</div>
+                    <span class="preis-badge green">14 Fr. / kg</span>
+                </div>
+                <div class="preis-row">
+                    <div class="preis-name"><span>🚿</span> Hochdruckreiniger</div>
+                    <span class="preis-badge green">8 Fr.</span>
+                </div>
+                <div class="preis-row">
+                    <div class="preis-name"><span>🏡</span> Material zur Felderstellung</div>
+                    <span class="preis-badge green">3 Fr.</span>
+                </div>
+                <div class="preis-row">
+                    <div class="preis-name"><span>🍂</span> Material zum Laubsammeln</div>
+                    <span class="preis-badge green">7 Fr.</span>
+                </div>
+                <div class="preis-row">
+                    <div class="preis-name"><span>🪚</span> Säge</div>
+                    <span class="preis-badge green">5 Fr.</span>
+                </div>
+                <div class="preis-row">
+                    <div class="preis-name"><span>🚚</span> Transport von Gütern</div>
+                    <span class="preis-badge green">1 Fr. / km</span>
+                </div>
+                <div class="preis-row">
+                    <div class="preis-name"><span>✂️</span> Trimmer</div>
+                    <span class="preis-badge green">5 Fr.</span>
+                </div>
+                <div class="preis-row">
+                    <div class="preis-name"><span>📋</span> Besichtigung vom Garten</div>
+                    <span class="preis-badge free">Gratis</span>
+                </div>
+
+                <p class="preis-footnote">
+                    Alle Leistungen werden nach effektivem Aufwand verrechnet.<br>
+                    Material- und Gerätekosten nur falls verwendet. Für grössere Projekte<br>
+                    erstellen wir gerne eine individuelle Offerte.
+                </p>
+            </div>
+        </div>
+    </div>
 
     <!-- ── PRODUCTS (Big_Container) ──────────────────── -->
     <div class="Big_Container">
