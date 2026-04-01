@@ -1243,7 +1243,9 @@
         function addData() {
             const userId = E1.value.trim();
             if (!userId) { alert("Bitte einen Namen eingeben!"); return; }
+            const dienstleistung = document.getElementById("Title3").textContent.trim() || "Nicht angegeben";
             set(ref(db, 'users/' + userId), {
+                Dienstleistung: dienstleistung,
                 Name: E1.value, Nachname: E2.value, Email: E3.value,
                 Adresse: E4.value, Ort: E5.value, Bezirk: E6.value
             }).then(() => {
