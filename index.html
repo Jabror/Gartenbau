@@ -6,6 +6,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script type="text/javascript">
+   (function(){
+      emailjs.init("OAJBX9QiqrJs891el"); // Ersetze dies mit deinem Public Key
+   })();
+</script>
     <title>Gartenbau</title>
     <style>
         /* ── DESIGN TOKENS ─────────────────────────────── */
@@ -1240,19 +1246,50 @@
         const E6 = document.getElementById("E6");
         const button3 = document.getElementById("button3");
 
+
         function addData() {
-            const userId = E1.value.trim();
-            if (!userId) { alert("Bitte einen Namen eingeben!"); return; }
-            const dienstleistung = document.getElementById("Title3").textContent.trim() || "Nicht angegeben";
-            set(ref(db, 'users/' + userId), {
-                Dienstleistung: dienstleistung,
-                Name: E1.value, Nachname: E2.value, Email: E3.value,
-                Adresse: E4.value, Ort: E5.value, Bezirk: E6.value
-            }).then(() => {
-                alert("Daten erfolgreich gespeichert!");
-                [E1,E2,E3,E4,E5,E6].forEach(e => e.value = "");
-            }).catch(error => alert("Fehler beim Speichern: " + error.message));
-        }
+    const vorname = E1.value.trim();
+    if (!vorname) { alert("Bitte einen Namen eingeben!"); return; }
+    
+    const dienstleistung = document.getElementById("Title3").textContent.trim() || "Nicht angegeben";
+
+    // 1. Daten für EmailJS vorbereiten (muss mit deinen Template-Variablen übereinstimmen)
+    const templateParams = {
+        vorname: vorname,
+        nachname: E2.value,
+        email: E3.value,
+        strasse: E4.value,
+        ort: E5.value,
+        bezirk: E6.value,
+        dienstleistung: dienstleistung
+    };
+
+    // 2. Email versenden
+    emailjs.send('DEINE_SERVICE_ID', 'DEINE_TEMPLATE_ID', templateParams)
+        .then(function(response) {
+           console.log('Email Erfolg!', response.status, response.text);
+        }, function(error) {
+           console.log('Email Fehler...', error);
+           alert("Email konnte nicht gesendet werden.");
+        });
+
+    // 3. Wie bisher: In Firebase speichern
+    set(ref(db, 'users/' + vorname), {
+        Dienstleistung: dienstleistung,
+        Name: E1.value, 
+        Nachname: E2.value, 
+        Email: E3.value,
+        Adresse: E4.value, 
+        Ort: E5.value, 
+        Bezirk: E6.value,
+        Timestamp: Date.now()
+    }).then(() => {
+        alert("Anfrage wurde erfolgreich gesendet!");
+        [E1,E2,E3,E4,E5,E6].forEach(e => e.value = "");
+        // Fenster schließen (optional)
+        if(typeof CloseWindow === "function") CloseWindow(); 
+    }).catch(error => alert("Fehler beim Speichern: " + error.message));
+}
 
         document.addEventListener("DOMContentLoaded", () => {
             button3.addEventListener("click", addData);
