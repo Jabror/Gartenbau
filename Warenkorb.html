@@ -1,47 +1,388 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     <title>Warenkorb</title>
-</head>
-<body>
     <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --green-deep: #1a3a2a;
+            --green-mid: #2d6a4f;
+            --green-light: #52b788;
+            --cream: #f8f5ee;
+            --warm-white: #fdfcf8;
+            --brown: #7c4a1e;
+            --gold: #c9a84c;
+            --text-dark: #1a1a1a;
+            --text-muted: #4a5a50;
+        }
+
         body {
-            font-family: "Open Sans", sans-serif;
+            font-family: "Lato", sans-serif;
+            background-color: var(--cream);
+            color: var(--text-dark);
+            min-height: 100vh;
+            overflow-x: hidden;
         }
-        .Title {
-            position: absolute;
-            left: 50px;
-            font-size: 50px;
+
+        /* Decorative background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(ellipse at 10% 20%, rgba(82,183,136,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 90% 80%, rgba(45,106,79,0.07) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
         }
-        .Final {
-            left: 50px;
-            position: absolute;
-            top: 100px;
+
+        .page-wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 48px;
+            padding-bottom: 24px;
+            border-bottom: 2px solid var(--green-light);
+        }
+
+        .header-icon {
+            width: 52px;
+            height: 52px;
+            background: var(--green-mid);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .header-icon svg {
+            width: 28px;
+            height: 28px;
+            fill: white;
+        }
+
+        .header-title {
+            font-family: "Playfair Display", serif;
+            font-size: clamp(28px, 6vw, 52px);
+            font-weight: 900;
+            color: var(--green-deep);
+            line-height: 1.1;
+            word-break: break-word;
+        }
+
+        /* Info cards */
+        .info-section {
             display: flex;
             flex-direction: column;
             gap: 20px;
-            width: 50%;
-            font-size: 20px;
+            margin-bottom: 48px;
         }
-        .Höfe {
-            color: brown;
+
+        .card {
+            background: var(--warm-white);
+            border-radius: 16px;
+            padding: 24px 28px;
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            box-shadow: 0 2px 16px rgba(26,58,42,0.07);
+            border-left: 4px solid var(--green-light);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(26,58,42,0.12);
+        }
+
+        .card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--green-mid), var(--green-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .card-icon svg {
+            width: 22px;
+            height: 22px;
+            fill: white;
+        }
+
+        .card-text {
+            font-size: clamp(15px, 2.5vw, 18px);
+            line-height: 1.7;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .card-text strong {
+            color: var(--green-deep);
+            font-weight: 700;
+        }
+
+        /* Warning card */
+        .card.warning {
+            border-left-color: var(--brown);
+            background: #fdf6ee;
+        }
+
+        .card.warning .card-icon {
+            background: linear-gradient(135deg, var(--brown), #c1854a);
+        }
+
+        .card.warning .card-text {
+            color: #5a3a20;
+        }
+
+        /* Map section */
+        .map-section {
+            background: var(--warm-white);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 32px rgba(26,58,42,0.12);
+            border: 1px solid rgba(82,183,136,0.3);
+        }
+
+        .map-header {
+            padding: 20px 28px;
+            background: var(--green-deep);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .map-header svg {
+            width: 22px;
+            height: 22px;
+            fill: var(--green-light);
+            flex-shrink: 0;
+        }
+
+        .map-header-text {
+            font-family: "Playfair Display", serif;
+            font-size: clamp(16px, 3vw, 20px);
+            color: var(--cream);
+            font-weight: 700;
+        }
+
+        .map-header-sub {
+            font-size: 13px;
+            color: rgba(248,245,238,0.6);
+            margin-left: auto;
+            white-space: nowrap;
+        }
+
+        #map {
+            width: 100%;
+            height: clamp(320px, 50vw, 520px);
+            display: block;
+        }
+
+        /* Footer note */
+        .footer-note {
+            text-align: center;
+            margin-top: 32px;
+            font-size: 13px;
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                flex-direction: column;
+                gap: 12px;
+                padding: 18px 20px;
+            }
+            .map-header {
+                flex-wrap: wrap;
+            }
+            .map-header-sub {
+                margin-left: 0;
+                width: 100%;
+            }
         }
     </style>
-    <h1 id="Warenkorb_Title" class="Title"></h1>
-    <div class="Final">
-        <h3>Wir kommen so schnell wie es nur geht</h3>
-        <h3>Pro Stunde verlangen wir 15Fr. Bevor wir bei ihrem Garten erscheinen künden wir es an. Sie können um diesen Zeitpunkt immer noch absagen.</h3>
-        <h3 class="Höfe">Falls sie nicht im Bezirk Höfe wohnen, können wir den Autrag nicht erfüllen!</h3>
+</head>
+<body>
+    <div class="page-wrapper">
+
+        <!-- Header -->
+        <div class="header">
+            <div class="header-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96C5 16.1 6.9 18 9 18h12v-2H9.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63H19c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1 1 0 0023.43 5H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
+                </svg>
+            </div>
+            <h1 id="Warenkorb_Title" class="header-title">Warenkorb</h1>
+        </div>
+
+        <!-- Info Cards -->
+        <div class="info-section">
+            <div class="card">
+                <div class="card-icon">
+                    <svg viewBox="0 0 24 24"><path d="M13 2.05v2.02c3.95.49 7 3.85 7 7.93 0 3.21-1.81 6-4.72 7.72L13 18v5l5-3-1.22-.7C19.91 17.1 22 14.15 22 12c0-5.18-3.94-9.45-9-9.95zM11 2.05C5.95 2.55 2 6.82 2 12c0 2.15 2.09 5.1 4.22 6.3L5 19l5 3v-5l-2.28 1.65C5.81 18 4 15.21 4 12c0-4.08 3.05-7.44 7-7.93V2.05z"/></svg>
+                </div>
+                <p class="card-text">Wir kommen <strong>so schnell wie es nur geht</strong> zu Ihnen.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">
+                    <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+                </div>
+                <p class="card-text">Pro Stunde verlangen wir <strong>15 Fr.</strong> Bevor wir bei Ihrem Garten erscheinen, kündigen wir es an. Sie können bis zu diesem Zeitpunkt jederzeit <strong>absagen</strong>.</p>
+            </div>
+
+            <div class="card warning">
+                <div class="card-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                </div>
+                <p class="card-text">Falls Sie nicht im <strong>Umkreis von 6 km</strong> wohnen, können wir Ihren Auftrag leider nicht annehmen.</p>
+            </div>
+        </div>
+
+        <!-- Map -->
+        <div class="map-section">
+            <div class="map-header">
+                <svg viewBox="0 0 24 24"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></svg>
+                <span class="map-header-text">Unser Einzugsgebiet — 6 km Radius</span>
+                <span class="map-header-sub">Mühlebachstrasse 2, Wollerau</span>
+            </div>
+            <div id="map"></div>
+        </div>
+
+        <p class="footer-note">Sie können die Karte zoomen und verschieben, um Ihre Lage zu prüfen.</p>
     </div>
+
+    <script>
+        // Set title from localStorage
+        const savedValue = localStorage.getItem("sharedValue");
+        const titleElement = document.getElementById("Warenkorb_Title");
+        if (savedValue) {
+            titleElement.innerHTML = savedValue;
+        }
+
+        // Google Maps with 15km circle around Mühlebachstrasse 2, Wollerau
+        function initMap() {
+            const center = { lat: 47.19738851758025, lng: 8.712407644706628 }; // Mühlebachstrasse 2, Wollerau
+
+            const map = new google.maps.Map(document.getElementById("map"), {
+                center: center,
+                zoom: 10,
+                mapTypeId: "roadmap",
+                styles: [
+                    { elementType: "geometry", stylers: [{ color: "#f5f0e8" }] },
+                    { elementType: "labels.text.stroke", stylers: [{ color: "#f5f0e8" }] },
+                    { elementType: "labels.text.fill", stylers: [{ color: "#3d4a3a" }] },
+                    { featureType: "water", elementType: "geometry", stylers: [{ color: "#b8d4e8" }] },
+                    { featureType: "road", elementType: "geometry", stylers: [{ color: "#ddd6c8" }] },
+                    { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#c8bfae" }] },
+                    { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#bfb49e" }] },
+                    { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#d6e8c8" }] },
+                    { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
+                    { featureType: "transit", stylers: [{ visibility: "off" }] },
+                ],
+                disableDefaultUI: false,
+                zoomControl: true,
+                mapTypeControl: false,
+                streetViewControl: false,
+                fullscreenControl: true,
+            });
+
+            // 15km radius circle
+            const circle = new google.maps.Circle({
+                strokeColor: "#2d6a4f",
+                strokeOpacity: 0.9,
+                strokeWeight: 2.5,
+                fillColor: "#52b788",
+                fillOpacity: 0.15,
+                map: map,
+                center: center,
+                radius: 6000, // 15 km in meters
+            });
+
+            // House marker
+            const marker = new google.maps.Marker({
+                position: center,
+                map: map,
+                title: "Mühlebachstrasse 2, Wollerau",
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 10,
+                    fillColor: "#1a3a2a",
+                    fillOpacity: 1,
+                    strokeColor: "#ffffff",
+                    strokeWeight: 3,
+                },
+            });
+
+            const infoWindow = new google.maps.InfoWindow({
+                content: `<div style="font-family:'Lato',sans-serif;padding:6px 2px;">
+                    <strong style="color:#1a3a2a;font-size:14px;">Unser Standort</strong><br>
+                    <span style="color:#4a5a50;font-size:13px;">Mühlebachstrasse 2, Wollerau</span>
+                </div>`
+            });
+
+            marker.addListener("click", () => infoWindow.open(map, marker));
+        }
+
+        // Fallback: show a static map message if API key is not available
+        window.gm_authFailure = function() {
+            const mapDiv = document.getElementById("map");
+            mapDiv.style.display = "flex";
+            mapDiv.style.alignItems = "center";
+            mapDiv.style.justifyContent = "center";
+            mapDiv.style.flexDirection = "column";
+            mapDiv.style.gap = "12px";
+            mapDiv.style.background = "#eef4ee";
+            mapDiv.style.color = "#2d6a4f";
+            mapDiv.style.fontSize = "16px";
+            mapDiv.style.padding = "40px";
+            mapDiv.style.textAlign = "center";
+            mapDiv.innerHTML = `
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="#2d6a4f"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                <strong>Mühlebachstrasse 2, Wollerau</strong>
+                <p style="color:#4a5a50;font-size:14px;max-width:320px;">Um die interaktive Karte anzuzeigen, wird ein Google Maps API-Schlüssel benötigt.<br>Bitte fügen Sie Ihren API-Schlüssel in den Code ein.</p>
+                <a href="https://maps.google.com/?q=Mühlebachstrasse+2,+Wollerau,+Switzerland" target="_blank"
+                   style="background:#2d6a4f;color:white;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;">
+                   In Google Maps öffnen
+                </a>
+            `;
+        };
+    </script>
+
+    <!--
+        IMPORTANT: Replace YOUR_API_KEY below with a real Google Maps JavaScript API key.
+        Get one at: https://console.cloud.google.com/
+        Enable "Maps JavaScript API" for your project.
+    -->
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBkeXI-sJZ6NRCzJbg5b5Q1bzS-Sdrkw9E&callback=initMap"
+        async defer
+        onerror="window.gm_authFailure && window.gm_authFailure()">
+    </script>
 </body>
 </html>
-<script>
-    const savedValue = localStorage.getItem("sharedValue");
-    let titleElement = document.getElementById("Warenkorb_Title")
-    titleElement.innerHTML = savedValue;
-</script>
