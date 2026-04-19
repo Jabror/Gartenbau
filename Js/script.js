@@ -6,6 +6,10 @@ function ObenWindow() {
 function CloseWindow() {
     Angebotfenster.style.display = "none";
 }
+function CloseWindow2() {
+    overlay.style.display = "none";
+    overlay2.style.display = "none";
+}
 
 // Scroll-Navigation: Buttons 1–12 → passende Small_Container
 for (let i = 1; i <= 12; i++) {
