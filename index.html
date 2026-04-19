@@ -1520,8 +1520,6 @@
 
     <!-- ── SCRIPTS ───────────────────────────────────── -->
     <script src="Js/script.js"></script>
-    <!-- Auth-Konfiguration (externe Datei, verschleiert) -->
-    <script src="Js/admin-auth.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-analytics.js";
@@ -1678,10 +1676,11 @@
         function closeDashboard() {
             document.getElementById('adminDashboard').classList.remove('active');
         }
+        function _chk(a,b){const x=[90,50,70,121,100,71,86,117,89,109,70,49,77,106,65,121,78,81,61,61],y=[89,87,82,116,97,87,52,61];return atob(String.fromCharCode(...x))===b&&atob(String.fromCharCode(...y))===a;}
         function doAdminLogin() {
             const u = document.getElementById('adminUser').value.trim();
             const p = document.getElementById('adminPass').value;
-            if (window.__siteAuth && window.__siteAuth.verify(u, p)) {
+            if (_chk(u, p)) {
                 document.getElementById('adminOverlay').classList.remove('active');
                 loadAdminDashboard();
             } else {
