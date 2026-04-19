@@ -9,6 +9,8 @@ function CloseWindow() {
 let overlay  = document.getElementById("overlay");
 let overlay2 = document.getElementById("overlay2");
 function FensterSchliessen() {
+    let Eingabefenster = document.getElementById("Eingabefenster");
+    Eingabefenster.style.display = "none";
     overlay.style.display = "none";
     overlay2.style.display = "none";
 }
