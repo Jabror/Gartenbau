@@ -1663,6 +1663,36 @@
     </script>
 
     <!-- ── TRACKING & ADMIN LOGIC ──────────────────── -->
+    <script>
+        // Admin-Funktionen sofort global verfügbar (kein Modul!)
+        function openAdminLogin() {
+            document.getElementById('adminOverlay').classList.add('active');
+            document.getElementById('adminError').style.display = 'none';
+            document.getElementById('adminUser').value = '';
+            document.getElementById('adminPass').value = '';
+            setTimeout(() => document.getElementById('adminUser').focus(), 80);
+        }
+        function closeAdminLogin() {
+            document.getElementById('adminOverlay').classList.remove('active');
+        }
+        function closeDashboard() {
+            document.getElementById('adminDashboard').classList.remove('active');
+        }
+        function doAdminLogin() {
+            const u = document.getElementById('adminUser').value.trim();
+            const p = document.getElementById('adminPass').value;
+            if (window.__siteAuth && window.__siteAuth.verify(u, p)) {
+                document.getElementById('adminOverlay').classList.remove('active');
+                loadAdminDashboard();
+            } else {
+                document.getElementById('adminError').style.display = 'block';
+                document.getElementById('adminPass').value = '';
+                document.getElementById('adminPass').focus();
+            }
+        }
+    </script>
+
+    <!-- Firebase Admin + Tracking (als Modul für Firebase-Imports) -->
     <script type="module">
         import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
         import { getDatabase, ref, push, get, update, increment } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
@@ -1680,20 +1710,15 @@
         const db  = getDatabase(app, "https://gartenbau-49d72-default-rtdb.europe-west1.firebasedatabase.app");
 
         // ── Seitenbesuch tracken ──────────────────────────
-        async function trackPageVisit() {
-            try {
-                await update(ref(db, 'analytics/summary'), { visits: increment(1) });
-                await push(ref(db, 'analytics/events'), {
-                    type: 'pageview', details: document.title, ts: Date.now()
-                });
-            } catch(e) {}
-        }
-        trackPageVisit();
+        try {
+            await update(ref(db, 'analytics/summary'), { visits: increment(1) });
+            await push(ref(db, 'analytics/events'), { type: 'pageview', details: document.title, ts: Date.now() });
+        } catch(e) {}
 
         // ── Button-Klicks tracken ─────────────────────────
         async function trackClick(label) {
             try {
-                const safeKey = label.replace(/[^a-zA-Z0-9äöüÄÖÜß ]/g,'').trim().replace(/ /g,'_').substring(0,60);
+                const safeKey = label.replace(/[^a-zA-Z0-9äöüÄÖÜß ]/g,'').trim().replace(/ /g,'_').substring(0,60) || 'unbekannt';
                 await update(ref(db, 'analytics/summary'), { clicks: increment(1) });
                 await update(ref(db, 'analytics/buttons/' + safeKey), { count: increment(1) });
                 await push(ref(db, 'analytics/events'), { type: 'click', details: label, ts: Date.now() });
@@ -1704,52 +1729,29 @@
                 trackClick(btn.textContent.trim() || btn.id || 'Unbekannt');
             }));
 
-        // ── Admin Funktionen ──────────────────────────────
-        window.openAdminLogin = () => {
-            document.getElementById('adminOverlay').classList.add('active');
-            setTimeout(() => document.getElementById('adminUser').focus(), 80);
-            document.getElementById('adminError').style.display = 'none';
-            document.getElementById('adminUser').value = '';
-            document.getElementById('adminPass').value = '';
-        };
-        window.closeAdminLogin = () => document.getElementById('adminOverlay').classList.remove('active');
-        window.closeDashboard  = () => document.getElementById('adminDashboard').classList.remove('active');
-
-        window.doAdminLogin = () => {
-            const u = document.getElementById('adminUser').value.trim();
-            const p = document.getElementById('adminPass').value;
-            if (window.__siteAuth && window.__siteAuth.verify(u, p)) {
-                document.getElementById('adminOverlay').classList.remove('active');
-                loadDashboard();
-            } else {
-                document.getElementById('adminError').style.display = 'block';
-                document.getElementById('adminPass').value = '';
-                document.getElementById('adminPass').focus();
-            }
-        };
-
-        async function loadDashboard() {
+        // ── Dashboard laden (global verfügbar machen) ─────
+        window.loadAdminDashboard = async function() {
             document.getElementById('adminDashboard').classList.add('active');
             ['dashVisits','dashClicks','dashBookings'].forEach(id =>
                 document.getElementById(id).textContent = '…');
             try {
                 const summSnap = await get(ref(db, 'analytics/summary'));
                 const s = summSnap.val() || {};
-                document.getElementById('dashVisits').textContent = s.visits ?? 0;
-                document.getElementById('dashClicks').textContent = s.clicks ?? 0;
+                document.getElementById('dashVisits').textContent  = s.visits ?? 0;
+                document.getElementById('dashClicks').textContent  = s.clicks ?? 0;
 
                 const bookSnap = await get(ref(db, 'users'));
                 document.getElementById('dashBookings').textContent =
                     bookSnap.exists() ? Object.keys(bookSnap.val()).length : 0;
 
-                // Button-Tabelle
+                // Button-Klick-Tabelle
                 const btnSnap = await get(ref(db, 'analytics/buttons'));
                 const btns = btnSnap.val() || {};
                 const tbody = document.getElementById('dashClickTable');
                 const rows = Object.entries(btns).sort((a,b)=>(b[1].count||0)-(a[1].count||0));
-                tbody.innerHTML = rows.length ? rows.map(([k,v])=>
-                    `<tr><td>${k.replace(/_/g,' ')}</td><td><span class="dash-badge">${v.count??0}</span></td></tr>`
-                ).join('') : '<tr><td colspan="2" class="dash-empty">Noch keine Klicks erfasst.</td></tr>';
+                tbody.innerHTML = rows.length
+                    ? rows.map(([k,v]) => `<tr><td>${k.replace(/_/g,' ')}</td><td><span class="dash-badge">${v.count??0}</span></td></tr>`).join('')
+                    : '<tr><td colspan="2" class="dash-empty">Noch keine Klicks erfasst.</td></tr>';
 
                 // Ereignisse (letzte 50)
                 const evSnap = await get(ref(db, 'analytics/events'));
@@ -1757,18 +1759,20 @@
                     ? Object.values(evSnap.val()).sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,50)
                     : [];
                 const evTbody = document.getElementById('dashEventTable');
-                evTbody.innerHTML = evs.length ? evs.map(ev => {
-                    const d = new Date(ev.ts);
-                    const time = d.toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit',year:'numeric'})
-                        + ' ' + d.toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
-                    return `<tr><td>${time}</td><td>${ev.type==='pageview'?'👁 Besuch':'🖱 Klick'}</td><td>${ev.details||'–'}</td></tr>`;
-                }).join('') : '<tr><td colspan="3" class="dash-empty">Noch keine Ereignisse.</td></tr>';
+                evTbody.innerHTML = evs.length
+                    ? evs.map(ev => {
+                        const d = new Date(ev.ts);
+                        const time = d.toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit',year:'numeric'})
+                            + ' ' + d.toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
+                        return `<tr><td>${time}</td><td>${ev.type==='pageview'?'👁 Besuch':'🖱 Klick'}</td><td>${ev.details||'–'}</td></tr>`;
+                    }).join('')
+                    : '<tr><td colspan="3" class="dash-empty">Noch keine Ereignisse.</td></tr>';
 
             } catch(e) {
                 document.getElementById('dashClickTable').innerHTML =
-                    '<tr><td colspan="2" class="dash-empty">Fehler beim Laden.</td></tr>';
+                    '<tr><td colspan="2" class="dash-empty">Fehler beim Laden der Daten.</td></tr>';
             }
-        }
+        };
     </script>
 </body>
 </html>
