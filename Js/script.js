@@ -6,6 +6,8 @@ function ObenWindow() {
 function CloseWindow() {
     Angebotfenster.style.display = "none";
 }
+let overlay  = document.getElementById("overlay");
+let overlay2 = document.getElementById("overlay2");
 function CloseWindow2() {
     overlay.style.display = "none";
     overlay2.style.display = "none";
@@ -25,8 +27,6 @@ for (let i = 1; i <= 12; i++) {
 }
 
 function Einkaufen(event) {
-    let overlay  = document.getElementById("overlay");
-    let overlay2 = document.getElementById("overlay2");
     overlay.style.display  = "block";
     overlay2.style.display = "block";
 
