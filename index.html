@@ -1157,6 +1157,237 @@
         }
     </style>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <style>
+        /* ── KI CHATBOT ─────────────────────────────────── */
+        #chat-bubble {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--green-deep);
+            border: none;
+            cursor: pointer;
+            z-index: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(26,58,31,0.35);
+            transition: transform var(--transition), box-shadow var(--transition);
+        }
+        #chat-bubble:hover {
+            transform: scale(1.08);
+            box-shadow: 0 8px 28px rgba(26,58,31,0.45);
+        }
+        #chat-bubble svg { width: 26px; height: 26px; fill: white; }
+        #chat-bubble .chat-badge {
+            position: absolute;
+            top: -4px; right: -4px;
+            width: 18px; height: 18px;
+            background: var(--green-light);
+            border-radius: 50%;
+            border: 2px solid white;
+            font-size: 9px;
+            color: var(--green-deep);
+            font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #chat-window {
+            position: fixed;
+            bottom: 90px;
+            left: 24px;
+            width: 360px;
+            height: 520px;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 16px 60px rgba(26,58,31,0.22);
+            border: 1px solid rgba(77,140,63,0.15);
+            z-index: 901;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            animation: chatSlideUp 0.3s cubic-bezier(.4,0,.2,1);
+        }
+        #chat-window.open { display: flex; }
+        @keyframes chatSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .chat-header {
+            background: var(--green-deep);
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .chat-header-avatar {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: var(--green-accent);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+        }
+        .chat-header-info { flex: 1; }
+        .chat-header-name { color: white; font-size: 14px; font-weight: 500; }
+        .chat-header-status { color: var(--green-light); font-size: 11px; }
+        .chat-header-close {
+            background: none; border: none; color: rgba(255,255,255,0.6);
+            font-size: 18px; cursor: pointer; padding: 4px;
+            transition: color var(--transition);
+        }
+        .chat-header-close:hover { color: white; }
+        .chat-header-gcal {
+            font-size: 10px; color: var(--green-light);
+            background: rgba(77,140,63,0.25);
+            border: 1px solid rgba(77,140,63,0.4);
+            border-radius: 20px; padding: 2px 8px;
+        }
+        #chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            scroll-behavior: smooth;
+        }
+        .chat-msg {
+            max-width: 84%;
+            padding: 9px 13px;
+            border-radius: 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+        .chat-msg.bot {
+            background: var(--cream);
+            color: var(--text-dark);
+            border-bottom-left-radius: 4px;
+            align-self: flex-start;
+            border: 1px solid rgba(77,140,63,0.1);
+        }
+        .chat-msg.user {
+            background: var(--green-deep);
+            color: white;
+            border-bottom-right-radius: 4px;
+            align-self: flex-end;
+        }
+        .chat-msg.system {
+            background: rgba(77,140,63,0.1);
+            color: var(--green-deep);
+            border-radius: 8px;
+            font-size: 12px;
+            align-self: center;
+            text-align: center;
+            padding: 8px 14px;
+            border: 1px solid rgba(77,140,63,0.2);
+            max-width: 96%;
+        }
+        .chat-chips {
+            display: flex; flex-wrap: wrap; gap: 6px;
+            margin-top: 4px; align-self: flex-start;
+        }
+        .chat-chip {
+            background: white;
+            border: 1px solid var(--green-accent);
+            color: var(--green-mid);
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: background var(--transition);
+        }
+        .chat-chip:hover { background: rgba(77,140,63,0.08); }
+        .chat-typing {
+            display: flex; gap: 4px; align-items: center;
+            padding: 9px 13px;
+            background: var(--cream);
+            border-radius: 14px; border-bottom-left-radius: 4px;
+            align-self: flex-start;
+            border: 1px solid rgba(77,140,63,0.1);
+        }
+        .chat-typing span {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--green-accent);
+            animation: chatBlink 1.2s infinite;
+        }
+        .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+        .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes chatBlink { 0%,80%,100%{opacity:0.3} 40%{opacity:1} }
+        .cal-confirm-card {
+            background: rgba(77,140,63,0.08);
+            border: 1px solid rgba(77,140,63,0.25);
+            border-radius: 10px;
+            padding: 10px 13px;
+            font-size: 12px;
+            color: var(--green-deep);
+            margin-top: 4px;
+            align-self: flex-start;
+            max-width: 84%;
+        }
+        .cal-confirm-card strong {
+            display: block;
+            font-size: 12.5px;
+            margin-bottom: 5px;
+            color: var(--green-deep);
+        }
+        #chat-input-row {
+            display: flex;
+            gap: 8px;
+            padding: 10px 12px;
+            border-top: 1px solid rgba(77,140,63,0.12);
+            background: white;
+            flex-shrink: 0;
+        }
+        #chat-input {
+            flex: 1;
+            border: 1px solid rgba(77,140,63,0.2);
+            border-radius: 20px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text-dark);
+            background: var(--cream);
+            outline: none;
+            transition: border-color var(--transition);
+        }
+        #chat-input:focus { border-color: var(--green-accent); }
+        #chat-send {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: var(--green-deep);
+            border: none;
+            cursor: pointer;
+            color: white;
+            font-size: 15px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            transition: background var(--transition);
+        }
+        #chat-send:hover { background: var(--green-accent); }
+        #gcal-login-banner {
+            background: rgba(66,133,244,0.08);
+            border-bottom: 1px solid rgba(66,133,244,0.2);
+            padding: 8px 14px;
+            display: flex; align-items: center; gap: 8px;
+            flex-shrink: 0;
+        }
+        #gcal-login-banner p { font-size: 11.5px; color: #1a73e8; flex: 1; }
+        #gcal-login-btn {
+            background: #1a73e8; color: white;
+            border: none; border-radius: 20px;
+            padding: 5px 12px; font-size: 11px;
+            cursor: pointer; font-family: 'DM Sans', sans-serif;
+            white-space: nowrap;
+        }
+        @media (max-width: 480px) {
+            #chat-window { width: calc(100vw - 20px); left: 10px; right: 10px; }
+        }
+    </style>
 </head>
 <body>
 
@@ -1461,6 +1692,263 @@
     <footer class="footer-strip">
         © 2025 Gartenbau · Alle Rechte vorbehalten
     </footer>
+
+    <!-- ── KI CHATBOT ────────────────────────────────── -->
+    <button id="chat-bubble" onclick="toggleChat()" title="Chat mit uns">
+        <div class="chat-badge">KI</div>
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+        </svg>
+    </button>
+
+    <div id="chat-window">
+        <div class="chat-header">
+            <div class="chat-header-avatar">🌿</div>
+            <div class="chat-header-info">
+                <div class="chat-header-name">Gartenbau Wollerau</div>
+                <div class="chat-header-status">KI-Assistent · Online</div>
+            </div>
+            <span class="chat-header-gcal">📅 Google Cal</span>
+            <button class="chat-header-close" onclick="toggleChat()">✕</button>
+        </div>
+        <div id="gcal-login-banner" style="display:none">
+            <p>Für Terminbuchung bitte einloggen</p>
+            <button id="gcal-login-btn" onclick="signInGoogle()">Mit Google anmelden</button>
+        </div>
+        <div id="chat-messages"></div>
+        <div id="chat-input-row">
+            <input id="chat-input" placeholder="Schreiben Sie hier..." />
+            <button id="chat-send">➤</button>
+        </div>
+    </div>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+        const GCAL_CLIENT_ID = '661171113856-ou24fko3cj6scgji57lu4cmtdougbv3g.apps.googleusercontent.com';
+        const GCAL_SCOPES    = 'https://www.googleapis.com/auth/calendar.events';
+        const ANTHROPIC_KEY_NOTE = 'handled-by-proxy';
+
+        let chatOpen = false;
+        let chatHistory = [];
+        let gcalToken = null;
+        let tokenClient = null;
+
+        const SYSTEM_PROMPT = `Du bist der freundliche KI-Assistent von Gartenbau Wollerau. Deine Aufgabe: Kundenfragen beantworten und Termine vereinbaren, die direkt in Google Calendar eingetragen werden.
+
+ÜBER UNS:
+- Firma: Gartenbau Wollerau, Wollerau (Schweiz)
+- Zwei junge lokale Schüler, faire Preise, glückliche Kunden
+
+LEISTUNGEN:
+Rasenmähen, Vertikutieren/Lüften, Mulchmähen, Wieder Ansaat, Düngen, Feld Erstellung, Gartenpflege Programm (Frühjahr), Laub sammeln, Unkrautentfernung, Frei schneiden/Trimmern, Hochdruckreinigung, Gartenbesichtigung (GRATIS)
+
+PREISE (CHF):
+- Stundenlohn: 15 Fr./Std. | Fahrt: 1 Fr./km
+- Rasenmäher: 9 Fr. | Elektrorasenmäher: 8 Fr.
+- Dünger: 6 Fr./kg | Streuwagen: 3 Fr.
+- Vertikutierer: 8 Fr. | Saatgut: 14 Fr./kg
+- Hochdruckreiniger: 8 Fr. | Säge: 5 Fr. | Trimmer: 5 Fr.
+- Material Felderstellung: 3 Fr. | Material Laubsammeln: 7 Fr.
+- Gartenbesichtigung: GRATIS
+
+TERMINBUCHUNG: Wenn Kunde Termin will, sammle: Leistung, Datum (konkretes Datum), Uhrzeit, Name, Adresse. Dann am Ende deiner Antwort exakt diesen Block ausgeben (kein anderer Text danach):
+TERMIN_JSON:{"service":"...","datum":"DD.MM.YYYY","uhrzeit":"HH:MM","name":"...","adresse":"..."}
+
+Sei freundlich, kurz, überzeugend. Antworte immer auf Deutsch. Bei Unsicherheit kostenlose Gartenbesichtigung empfehlen.`;
+
+        function toggleChat() {
+            chatOpen = !chatOpen;
+            const w = document.getElementById('chat-window');
+            w.classList.toggle('open', chatOpen);
+            if (chatOpen && chatHistory.length === 0) initChat();
+        }
+
+        function initChat() {
+            addBotMsg('Willkommen bei Gartenbau Wollerau! 🌿\n\nIch beantworte Ihre Fragen und buche Ihren Termin direkt in unseren Kalender. Wie kann ich helfen?',
+                ['Preise ansehen', 'Termin buchen', 'Gartenbesichtigung (gratis)']);
+            initGoogleAuth();
+        }
+
+        function initGoogleAuth() {
+            if (typeof google === 'undefined') return;
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: GCAL_CLIENT_ID,
+                scope: GCAL_SCOPES,
+                callback: (resp) => {
+                    if (resp.access_token) {
+                        gcalToken = resp.access_token;
+                        document.getElementById('gcal-login-banner').style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        function signInGoogle() {
+            if (tokenClient) tokenClient.requestAccessToken();
+        }
+
+        function addBotMsg(text, chips) {
+            const msgs = document.getElementById('chat-messages');
+            const d = document.createElement('div');
+            d.className = 'chat-msg bot';
+            d.innerHTML = text.replace(/\n/g, '<br>');
+            msgs.appendChild(d);
+            if (chips && chips.length) {
+                const c = document.createElement('div');
+                c.className = 'chat-chips';
+                chips.forEach(ch => {
+                    const b = document.createElement('button');
+                    b.className = 'chat-chip';
+                    b.textContent = ch;
+                    b.onclick = () => { document.getElementById('chat-input').value = ch; sendChatMsg(); };
+                    c.appendChild(b);
+                });
+                msgs.appendChild(c);
+            }
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+
+        function addUserMsg(text) {
+            const msgs = document.getElementById('chat-messages');
+            const d = document.createElement('div');
+            d.className = 'chat-msg user';
+            d.textContent = text;
+            msgs.appendChild(d);
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+
+        function addSystemMsg(text) {
+            const msgs = document.getElementById('chat-messages');
+            const d = document.createElement('div');
+            d.className = 'chat-msg system';
+            d.innerHTML = text;
+            msgs.appendChild(d);
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+
+        function addCalCard(data) {
+            const msgs = document.getElementById('chat-messages');
+            const d = document.createElement('div');
+            d.className = 'cal-confirm-card';
+            d.innerHTML = `<strong>📅 Termin in Google Calendar eingetragen</strong>
+                Leistung: ${data.service}<br>
+                Datum: ${data.datum} um ${data.uhrzeit} Uhr<br>
+                Kunde: ${data.name}<br>
+                Adresse: ${data.adresse}`;
+            msgs.appendChild(d);
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+
+        function showTyping() {
+            const msgs = document.getElementById('chat-messages');
+            const d = document.createElement('div');
+            d.className = 'chat-typing'; d.id = 'chat-typing';
+            d.innerHTML = '<span></span><span></span><span></span>';
+            msgs.appendChild(d);
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+
+        function hideTyping() {
+            const t = document.getElementById('chat-typing');
+            if (t) t.remove();
+        }
+
+        async function createCalendarEvent(booking) {
+            if (!gcalToken) {
+                document.getElementById('gcal-login-banner').style.display = 'flex';
+                addSystemMsg('⚠️ Bitte mit Google anmelden (Banner oben), dann wird der Termin automatisch eingetragen.');
+                return false;
+            }
+            const parts = booking.datum.split('.');
+            const dateStr = `${parts[2]}-${parts[1]}-${parts[0]}`;
+            const startDT = `${dateStr}T${booking.uhrzeit}:00`;
+            const endHour = String(parseInt(booking.uhrzeit.split(':')[0]) + 2).padStart(2,'0');
+            const endDT   = `${dateStr}T${endHour}:${booking.uhrzeit.split(':')[1]}:00`;
+            const event = {
+                summary: `Gartenbau: ${booking.service} — ${booking.name}`,
+                location: booking.adresse,
+                description: `Kunde: ${booking.name}\nAdresse: ${booking.adresse}\nLeistung: ${booking.service}\n\nGebucht via KI-Assistent`,
+                start: { dateTime: startDT, timeZone: 'Europe/Zurich' },
+                end:   { dateTime: endDT,   timeZone: 'Europe/Zurich' },
+                reminders: { useDefault: false, overrides: [{ method: 'popup', minutes: 60 }] }
+            };
+            try {
+                const resp = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${gcalToken}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(event)
+                });
+                return resp.ok;
+            } catch(e) { return false; }
+        }
+
+        async function sendChatMsg() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+            addUserMsg(text);
+            chatHistory.push({ role: 'user', content: text });
+            showTyping();
+
+            try {
+                const resp = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 800,
+                        system: SYSTEM_PROMPT,
+                        messages: chatHistory
+                    })
+                });
+                const data = await resp.json();
+                const reply = data.content[0].text;
+                hideTyping();
+
+                const bookingMatch = reply.match(/TERMIN_JSON:(\{[^}]+\})/);
+                let displayReply = bookingMatch ? reply.replace(/TERMIN_JSON:\{[^}]+\}/, '').trim() : reply;
+
+                chatHistory.push({ role: 'assistant', content: reply });
+
+                let chips = [];
+                const lower = reply.toLowerCase();
+                if (!bookingMatch) {
+                    if (lower.includes('leistung') || lower.includes('service') || lower.includes('womit')) {
+                        chips = ['Rasenmähen', 'Unkrautentfernung', 'Gartenbesichtigung'];
+                    } else if (lower.includes('datum') || lower.includes('wann')) {
+                        chips = ['Nächste Woche', 'In 2 Wochen', 'Flexibel'];
+                    }
+                }
+
+                addBotMsg(displayReply, chips);
+
+                if (bookingMatch) {
+                    try {
+                        const booking = JSON.parse(bookingMatch[1]);
+                        const ok = await createCalendarEvent(booking);
+                        if (ok) {
+                            addCalCard(booking);
+                            setTimeout(() => addSystemMsg('✅ Termin erfolgreich gespeichert! Wir freuen uns auf Sie.'), 400);
+                        } else if (gcalToken) {
+                            addSystemMsg('⚠️ Termin konnte nicht gespeichert werden. Bitte rufen Sie uns an.');
+                        }
+                    } catch(e) {}
+                }
+            } catch(e) {
+                hideTyping();
+                addBotMsg('Entschuldigung, kurze Störung. Bitte versuchen Sie es nochmal.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('chat-send').addEventListener('click', sendChatMsg);
+            document.getElementById('chat-input').addEventListener('keydown', e => {
+                if (e.key === 'Enter') sendChatMsg();
+            });
+            setTimeout(initGoogleAuth, 1500);
+        });
+    </script>
 
     <!-- ── ADMIN BUTTON (unauffällig, unten rechts) ── -->
     <button class="admin-btn" onclick="openAdminLogin()" title="Admin">A</button>
