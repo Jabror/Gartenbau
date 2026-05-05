@@ -1728,10 +1728,10 @@
         const GCAL_SCOPES    = 'https://www.googleapis.com/auth/calendar.events';
         const ANTHROPIC_KEY_NOTE = 'handled-by-proxy';
 
+        emailjs.init("OAJBX9QiqrJs891el");
+
         let chatOpen = false;
         let chatHistory = [];
-        let gcalToken = null;
-        let tokenClient = null;
 
         const SYSTEM_PROMPT = `Du bist der freundliche KI-Assistent von Gartenbau Wollerau. Deine Aufgabe: Kundenfragen beantworten und Termine vereinbaren, die direkt in Google Calendar eingetragen werden.
 
@@ -1751,8 +1751,8 @@ PREISE (CHF):
 - Material Felderstellung: 3 Fr. | Material Laubsammeln: 7 Fr.
 - Gartenbesichtigung: GRATIS
 
-TERMINBUCHUNG: Wenn Kunde Termin will, sammle: Leistung, Datum (konkretes Datum), Uhrzeit, Name, Adresse. Dann am Ende deiner Antwort exakt diesen Block ausgeben (kein anderer Text danach):
-TERMIN_JSON:{"service":"...","datum":"DD.MM.YYYY","uhrzeit":"HH:MM","name":"...","adresse":"..."}
+TERMINBUCHUNG: Wenn Kunde Termin will, sammle nacheinander: Leistung, Datum (konkretes Datum), Uhrzeit, Vorname, Nachname, E-Mail, Adresse. Dann am Ende deiner Antwort exakt diesen Block ausgeben (kein anderer Text danach):
+TERMIN_JSON:{"service":"...","datum":"DD.MM.YYYY","uhrzeit":"HH:MM","name":"...","nachname":"...","email":"...","adresse":"..."}
 
 Sei freundlich, kurz, überzeugend. Antworte immer auf Deutsch. Bei Unsicherheit kostenlose Gartenbesichtigung empfehlen.`;
 
@@ -1853,31 +1853,26 @@ Sei freundlich, kurz, überzeugend. Antworte immer auf Deutsch. Bei Unsicherheit
             if (t) t.remove();
         }
 
-        async function createCalendarEvent(booking) {
-            if (!gcalToken) {
-                document.getElementById('gcal-login-banner').style.display = 'flex';
-                addSystemMsg('⚠️ Bitte mit Google anmelden (Banner oben), dann wird der Termin automatisch eingetragen.');
-                return false;
-            }
-            const parts = booking.datum.split('.');
-            const dateStr = `${parts[2]}-${parts[1]}-${parts[0]}`;
-            const startDT = `${dateStr}T${booking.uhrzeit}:00`;
-            const endHour = String(parseInt(booking.uhrzeit.split(':')[0]) + 2).padStart(2,'0');
-            const endDT   = `${dateStr}T${endHour}:${booking.uhrzeit.split(':')[1]}:00`;
-            const event = {
-                summary: `Gartenbau: ${booking.service} — ${booking.name}`,
-                location: booking.adresse,
-                description: `Kunde: ${booking.name}\nAdresse: ${booking.adresse}\nLeistung: ${booking.service}\n\nGebucht via KI-Assistent`,
-                start: { dateTime: startDT, timeZone: 'Europe/Zurich' },
-                end:   { dateTime: endDT,   timeZone: 'Europe/Zurich' },
-                reminders: { useDefault: false, overrides: [{ method: 'popup', minutes: 60 }] }
-            };
+        async function saveChatBooking(booking) {
+            const key = (booking.name || 'unbekannt').replace(/\s+/g, '_') + '_' + Date.now();
+            const url = `https://gartenbau-49d72-default-rtdb.europe-west1.firebasedatabase.app/chatbuchungen/${key}.json`;
             try {
-                const resp = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${gcalToken}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify(event)
+                const resp = await fetch(url, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ...booking, timestamp: Date.now() })
                 });
+                if (resp.ok) {
+                    emailjs.send("service_6guh4nb", "template_uy9ytzo", {
+                        dienstleistung: `${booking.service} | ${booking.datum} um ${booking.uhrzeit} Uhr`,
+                        name:           booking.name,
+                        nachname:       booking.nachname || '',
+                        email:          booking.email   || '',
+                        adresse:        booking.adresse,
+                        ort:            '',
+                        bezirk:         ''
+                    }).catch(err => console.error('E-Mail Fehler:', err));
+                }
                 return resp.ok;
             } catch(e) { return false; }
         }
@@ -1892,11 +1887,11 @@ Sei freundlich, kurz, überzeugend. Antworte immer auf Deutsch. Bei Unsicherheit
             showTyping();
 
             try {
-                const resp = await fetch('https://api.anthropic.com/v1/messages', {
+                const resp = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        model: 'claude-sonnet-4-20250514',
+                        model: 'claude-haiku-4-5-20251001',
                         max_tokens: 800,
                         system: SYSTEM_PROMPT,
                         messages: chatHistory
@@ -1906,7 +1901,7 @@ Sei freundlich, kurz, überzeugend. Antworte immer auf Deutsch. Bei Unsicherheit
                 const reply = data.content[0].text;
                 hideTyping();
 
-                const bookingMatch = reply.match(/TERMIN_JSON:(\{[^}]+\})/);
+                const bookingMatch = reply.match(/TERMIN_JSON:(\{[\s\S]*?\})/);
                 let displayReply = bookingMatch ? reply.replace(/TERMIN_JSON:\{[^}]+\}/, '').trim() : reply;
 
                 chatHistory.push({ role: 'assistant', content: reply });
@@ -1926,12 +1921,12 @@ Sei freundlich, kurz, überzeugend. Antworte immer auf Deutsch. Bei Unsicherheit
                 if (bookingMatch) {
                     try {
                         const booking = JSON.parse(bookingMatch[1]);
-                        const ok = await createCalendarEvent(booking);
+                        const ok = await saveChatBooking(booking);
                         if (ok) {
                             addCalCard(booking);
-                            setTimeout(() => addSystemMsg('✅ Termin erfolgreich gespeichert! Wir freuen uns auf Sie.'), 400);
-                        } else if (gcalToken) {
-                            addSystemMsg('⚠️ Termin konnte nicht gespeichert werden. Bitte rufen Sie uns an.');
+                            setTimeout(() => addSystemMsg('✅ Anfrage erfolgreich gesendet! Wir melden uns bald bei Ihnen.'), 400);
+                        } else {
+                            addSystemMsg('⚠️ Speichern fehlgeschlagen. Bitte rufen Sie uns an.');
                         }
                     } catch(e) {}
                 }
