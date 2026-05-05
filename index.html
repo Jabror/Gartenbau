@@ -1708,12 +1708,7 @@
                 <div class="chat-header-name">Gartenbau Wollerau</div>
                 <div class="chat-header-status">KI-Assistent · Online</div>
             </div>
-            <span class="chat-header-gcal">📅 Google Cal</span>
             <button class="chat-header-close" onclick="toggleChat()">✕</button>
-        </div>
-        <div id="gcal-login-banner" style="display:none">
-            <p>Für Terminbuchung bitte einloggen</p>
-            <button id="gcal-login-btn" onclick="signInGoogle()">Mit Google anmelden</button>
         </div>
         <div id="chat-messages"></div>
         <div id="chat-input-row">
@@ -1722,18 +1717,13 @@
         </div>
     </div>
 
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
-        const GCAL_CLIENT_ID = '661171113856-ou24fko3cj6scgji57lu4cmtdougbv3g.apps.googleusercontent.com';
-        const GCAL_SCOPES    = 'https://www.googleapis.com/auth/calendar.events';
-        const ANTHROPIC_KEY_NOTE = 'handled-by-proxy';
-
         emailjs.init("OAJBX9QiqrJs891el");
 
         let chatOpen = false;
         let chatHistory = [];
 
-        const SYSTEM_PROMPT = `Du bist der freundliche KI-Assistent von Gartenbau Wollerau. Deine Aufgabe: Kundenfragen beantworten und Termine vereinbaren, die direkt in Google Calendar eingetragen werden.
+        const SYSTEM_PROMPT = `Du bist der freundliche KI-Assistent von Gartenbau Wollerau. Deine Aufgabe: Kundenfragen beantworten und Termine vereinbaren.
 
 ÜBER UNS:
 - Firma: Gartenbau Wollerau, Wollerau (Schweiz)
@@ -1764,27 +1754,8 @@ Sei freundlich, kurz, überzeugend. Antworte immer auf Deutsch. Bei Unsicherheit
         }
 
         function initChat() {
-            addBotMsg('Willkommen bei Gartenbau Wollerau! 🌿\n\nIch beantworte Ihre Fragen und buche Ihren Termin direkt in unseren Kalender. Wie kann ich helfen?',
+            addBotMsg('Willkommen bei Gartenbau Wollerau! 🌿\n\nIch beantworte Ihre Fragen und buche Ihren Termin. Wie kann ich helfen?',
                 ['Preise ansehen', 'Termin buchen', 'Gartenbesichtigung (gratis)']);
-            initGoogleAuth();
-        }
-
-        function initGoogleAuth() {
-            if (typeof google === 'undefined') return;
-            tokenClient = google.accounts.oauth2.initTokenClient({
-                client_id: GCAL_CLIENT_ID,
-                scope: GCAL_SCOPES,
-                callback: (resp) => {
-                    if (resp.access_token) {
-                        gcalToken = resp.access_token;
-                        document.getElementById('gcal-login-banner').style.display = 'none';
-                    }
-                }
-            });
-        }
-
-        function signInGoogle() {
-            if (tokenClient) tokenClient.requestAccessToken();
         }
 
         function addBotMsg(text, chips) {
@@ -1830,10 +1801,10 @@ Sei freundlich, kurz, überzeugend. Antworte immer auf Deutsch. Bei Unsicherheit
             const msgs = document.getElementById('chat-messages');
             const d = document.createElement('div');
             d.className = 'cal-confirm-card';
-            d.innerHTML = `<strong>📅 Termin in Google Calendar eingetragen</strong>
+            d.innerHTML = `<strong>✅ Buchung eingegangen</strong>
                 Leistung: ${data.service}<br>
                 Datum: ${data.datum} um ${data.uhrzeit} Uhr<br>
-                Kunde: ${data.name}<br>
+                Kunde: ${data.name} ${data.nachname || ''}<br>
                 Adresse: ${data.adresse}`;
             msgs.appendChild(d);
             msgs.scrollTop = msgs.scrollHeight;
@@ -1941,7 +1912,6 @@ Sei freundlich, kurz, überzeugend. Antworte immer auf Deutsch. Bei Unsicherheit
             document.getElementById('chat-input').addEventListener('keydown', e => {
                 if (e.key === 'Enter') sendChatMsg();
             });
-            setTimeout(initGoogleAuth, 1500);
         });
     </script>
 
